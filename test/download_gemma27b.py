@@ -3,7 +3,7 @@ import os
 import torch
 from transformers import AutoProcessor, Gemma3ForConditionalGeneration
 
-HF_TOKEN = "os.getenv("HF_TOKEN")"
+HF_TOKEN = os.getenv("HF_TOKEN")
 
 MODEL_ID = "google/gemma-3-27b-it"
 MODEL_CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "model")
