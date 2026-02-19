@@ -53,11 +53,37 @@ class GemmaService:
         if self.model is None or self.processor is None:
             raise RuntimeError("모델이 로드되지 않았습니다.")
 
+    def _build_gen_kwargs(
+        self,
+        temperature: float,
+        top_p: float,
+        top_k: int,
+        repetition_penalty: float,
+    ) -> dict:
+        """temperature 기반으로 sampling 관련 kwargs를 구성합니다."""
+        do_sample = temperature > 0
+        kwargs: dict = {"do_sample": do_sample}
+
+        if do_sample:
+            kwargs["temperature"] = temperature
+            kwargs["top_p"] = top_p
+            if top_k > 0:
+                kwargs["top_k"] = top_k
+
+        if repetition_penalty > 1.0:
+            kwargs["repetition_penalty"] = repetition_penalty
+
+        return kwargs
+
     def generate(
         self,
         message: str,
         max_new_tokens: int = 512,
+        min_new_tokens: int = 1,
         temperature: float = 0.7,
+        top_p: float = 0.95,
+        top_k: int = 64,
+        repetition_penalty: float = 1.0,
         system_prompt: Optional[str] = None,
     ) -> dict:
         """단일 메시지에 대한 추론 (전체 결과를 한 번에 반환)."""
@@ -65,14 +91,15 @@ class GemmaService:
 
         inputs = self._build_inputs(message, system_prompt)
         input_len = inputs["input_ids"].shape[-1]
+        gen_kwargs = self._build_gen_kwargs(temperature, top_p, top_k, repetition_penalty)
 
         t0 = time.time()
         with torch.inference_mode():
             generation = self.model.generate(
                 **inputs,
                 max_new_tokens=max_new_tokens,
-                do_sample=temperature > 0,
-                temperature=temperature if temperature > 0 else None,
+                min_new_tokens=min_new_tokens,
+                **gen_kwargs,
             )
         elapsed = time.time() - t0
 
@@ -94,7 +121,11 @@ class GemmaService:
         self,
         message: str,
         max_new_tokens: int = 512,
+        min_new_tokens: int = 1,
         temperature: float = 0.7,
+        top_p: float = 0.95,
+        top_k: int = 64,
+        repetition_penalty: float = 1.0,
         system_prompt: Optional[str] = None,
     ) -> Generator[str, None, None]:
         """스트리밍 추론 (토큰 단위로 yield)."""
@@ -108,14 +139,14 @@ class GemmaService:
             skip_special_tokens=True,
         )
 
+        sampling_kwargs = self._build_gen_kwargs(temperature, top_p, top_k, repetition_penalty)
         gen_kwargs = {
             **inputs,
             "max_new_tokens": max_new_tokens,
-            "do_sample": temperature > 0,
+            "min_new_tokens": min_new_tokens,
             "streamer": streamer,
+            **sampling_kwargs,
         }
-        if temperature > 0:
-            gen_kwargs["temperature"] = temperature
 
         thread = Thread(target=self._run_generation, args=(gen_kwargs,))
         thread.start()

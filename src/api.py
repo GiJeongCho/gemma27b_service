@@ -58,7 +58,11 @@ app.add_middleware(
 class GenerateRequest(BaseModel):
     message: str = Field(..., description="사용자 입력 메시지")
     max_new_tokens: int = Field(512, ge=1, le=4096, description="최대 생성 토큰 수")
+    min_new_tokens: int = Field(1, ge=1, le=4096, description="최소 생성 토큰 수")
     temperature: float = Field(0.7, ge=0.0, le=2.0, description="샘플링 온도 (0이면 greedy)")
+    top_p: float = Field(0.95, gt=0.0, le=1.0, description="누적 확률 기반 nucleus sampling")
+    top_k: int = Field(64, ge=0, le=1000, description="상위 K개 토큰만 샘플링 (0이면 비활성)")
+    repetition_penalty: float = Field(1.0, ge=1.0, le=2.0, description="반복 억제 패널티 (1.0이면 비활성)")
     system_prompt: Optional[str] = Field(None, description="시스템 프롬프트")
 
 
@@ -79,7 +83,8 @@ def generate(req: GenerateRequest):
     print(f"\n{'='*60}")
     print(f"[{request_time}] POST /generate")
     print(f"  message: {req.message[:200]}{'...' if len(req.message) > 200 else ''}")
-    print(f"  max_new_tokens={req.max_new_tokens}, temperature={req.temperature}")
+    print(f"  max_new_tokens={req.max_new_tokens}, min_new_tokens={req.min_new_tokens}, temperature={req.temperature}")
+    print(f"  top_p={req.top_p}, top_k={req.top_k}, repetition_penalty={req.repetition_penalty}")
     if req.system_prompt:
         print(f"  system_prompt: {req.system_prompt[:100]}{'...' if len(req.system_prompt) > 100 else ''}")
 
@@ -87,7 +92,11 @@ def generate(req: GenerateRequest):
         result = service.generate(
             message=req.message,
             max_new_tokens=req.max_new_tokens,
+            min_new_tokens=req.min_new_tokens,
             temperature=req.temperature,
+            top_p=req.top_p,
+            top_k=req.top_k,
+            repetition_penalty=req.repetition_penalty,
             system_prompt=req.system_prompt,
         )
     except Exception as e:
@@ -130,7 +139,8 @@ def generate_stream(req: GenerateRequest):
         print(f"\n{'='*60}")
         print(f"[{request_time}] POST /generate/stream")
         print(f"  message: {req.message[:200]}{'...' if len(req.message) > 200 else ''}")
-        print(f"  max_new_tokens={req.max_new_tokens}, temperature={req.temperature}")
+        print(f"  max_new_tokens={req.max_new_tokens}, min_new_tokens={req.min_new_tokens}, temperature={req.temperature}")
+        print(f"  top_p={req.top_p}, top_k={req.top_k}, repetition_penalty={req.repetition_penalty}")
         if req.system_prompt:
             print(f"  system_prompt: {req.system_prompt[:100]}{'...' if len(req.system_prompt) > 100 else ''}")
 
@@ -138,7 +148,11 @@ def generate_stream(req: GenerateRequest):
             for token_text in service.generate_stream(
                 message=req.message,
                 max_new_tokens=req.max_new_tokens,
+                min_new_tokens=req.min_new_tokens,
                 temperature=req.temperature,
+                top_p=req.top_p,
+                top_k=req.top_k,
+                repetition_penalty=req.repetition_penalty,
                 system_prompt=req.system_prompt,
             ):
                 token_count += 1
