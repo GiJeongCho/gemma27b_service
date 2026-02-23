@@ -45,5 +45,6 @@ def load_model(model_path: str = DEFAULT_MODEL_PATH):
     ).eval()
 
     elapsed = time.time() - t0
-    logger.info("모델 로딩 완료 (%.1fs) | device_map: %s", elapsed, model.hf_device_map)
+    device_map_info = getattr(model, "hf_device_map", None)
+    logger.info("모델 로딩 완료 (%.1fs) | device_map: %s", elapsed, device_map_info)
     return model, processor
