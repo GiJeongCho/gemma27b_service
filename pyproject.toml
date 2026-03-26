@@ -3,7 +3,7 @@ name = "llm-server"
 version = "0.1.0"
 description = "Gemma 3 27B On-Premise LLM API Server"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.109.0",
     "uvicorn>=0.27.0",
