@@ -40,8 +40,8 @@ LLM/
 # 의존성 설치
 uv sync
 
-# 서버 실행 (기본 포트: 8092)
-uv run uvicorn src.api:app --host 0.0.0.0 --port 8092 --reload
+# 서버 실행 (기본 포트: 6001)
+uv run uvicorn src.api:app --host 0.0.0.0 --port 6001 --reload
 ```
 
 ### Docker 실행
@@ -51,7 +51,7 @@ uv run uvicorn src.api:app --host 0.0.0.0 --port 8092 --reload
 docker build -t llm-server .
 
 # 컨테이너 실행 (GPU 필요)
-docker run --gpus all -p 8092:8092 \
+docker run --gpus all -p 6001:6001 \
   -v /path/to/models:/app/src/resources/model:Z \
   llm-server
 ```
@@ -61,7 +61,7 @@ docker run --gpus all -p 8092:8092 \
 ### 일반 추론
 
 ```bash
-curl -X POST http://localhost:8092/generate \
+curl -X POST http://localhost:6001/generate \
   -H "Content-Type: application/json" \
   -d '{
     "message": "회의록을 요약해줘.",
@@ -74,7 +74,7 @@ curl -X POST http://localhost:8092/generate \
 ### 스트리밍 추론
 
 ```bash
-curl -N -X POST http://localhost:8092/generate/stream \
+curl -N -X POST http://localhost:6001/generate/stream \
   -H "Content-Type: application/json" \
   -d '{
     "message": "회의록을 요약해줘.",
@@ -99,4 +99,4 @@ curl -N -X POST http://localhost:8092/generate/stream \
 
 cd /home/pps-nipa/PoC/fish/LLM
 source .venv/bin/activate
-(uv run) uvicorn src.api:app --host 0.0.0.0 --port 8092 --reload
+(uv run) uvicorn src.api:app --host 0.0.0.0 --port 6001 --reload

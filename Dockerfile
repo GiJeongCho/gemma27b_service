@@ -9,5 +9,5 @@ RUN pip install --no-cache-dir .
 
 ENV PYTHONPATH=/app
 
-EXPOSE 8092
-CMD ["uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8092"]
+EXPOSE 6001
+CMD ["uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "6001"]
