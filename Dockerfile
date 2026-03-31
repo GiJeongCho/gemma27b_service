@@ -8,7 +8,6 @@ COPY src/ ./src/
 RUN pip install --no-cache-dir .
 
 ENV PYTHONPATH=/app
-ENV LLM_PORT=6001
 
-EXPOSE ${LLM_PORT}
-CMD uvicorn src.api:app --host 0.0.0.0 --port ${LLM_PORT}
+EXPOSE ${APP_PORT}
+CMD ["sh", "-c", "uvicorn src.api:app --host 0.0.0.0 --port ${APP_PORT}"]
