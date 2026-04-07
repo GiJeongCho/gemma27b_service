@@ -1,4 +1,4 @@
-"""Gemma 3 27B 로컬 모델 로드 유틸리티.
+"""Gemma 4 31B 로컬 모델 로드 유틸리티.
 
 서비스에서 import하여 사용:
     from src.v1.utils.model_loader import load_model, DEFAULT_MODEL_PATH
@@ -8,17 +8,22 @@ import os
 import time
 import logging
 import torch
-from transformers import AutoProcessor, Gemma3ForConditionalGeneration
+from transformers import AutoProcessor, AutoModelForImageTextToText
 
 logger = logging.getLogger(__name__)
 
 _UTILS_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_MODEL_PATH = os.path.abspath(os.path.join(
+_SNAPSHOTS_DIR = os.path.abspath(os.path.join(
     _UTILS_DIR, "..", "..", "resources", "model",
-    "models--google--gemma-3-27b-it",
+    "models--google--gemma-4-31B-it",
     "snapshots",
-    "005ad3404e59d6023443cb575daa05336842228a",
 ))
+
+DEFAULT_MODEL_PATH = _SNAPSHOTS_DIR
+if os.path.isdir(_SNAPSHOTS_DIR):
+    _snaps = os.listdir(_SNAPSHOTS_DIR)
+    if _snaps:
+        DEFAULT_MODEL_PATH = os.path.join(_SNAPSHOTS_DIR, _snaps[0])
 
 
 def load_model(model_path: str = DEFAULT_MODEL_PATH):
@@ -36,10 +41,11 @@ def load_model(model_path: str = DEFAULT_MODEL_PATH):
         local_files_only=True,
     )
 
-    model = Gemma3ForConditionalGeneration.from_pretrained(
+    model = AutoModelForImageTextToText.from_pretrained(
         model_path,
         device_map="auto",
-        torch_dtype=torch.bfloat16,
+        dtype=torch.bfloat16,
+        attn_implementation="eager",
         force_download=False,
         local_files_only=True,
     ).eval()

@@ -30,7 +30,7 @@ def kst_now() -> str:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Gemma 3 27B 모델을 GPU 메모리에 로드합니다...")
+    logger.info("Gemma 4 31B 모델을 GPU 메모리에 로드합니다...")
     try:
         service.load()
         logger.info("모델 로드 완료. API 서비스 준비됨.")
@@ -40,8 +40,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Gemma 3 27B LLM API",
-    description="Gemma 3 27B IT 모델 기반 텍스트 생성 API (일반 / 스트리밍)",
+    title="Gemma 4 31B LLM API",
+    description="Gemma 4 31B IT 모델 기반 텍스트 생성 API (일반 / 스트리밍)",
     version="0.1.0",
     lifespan=lifespan,
 )
