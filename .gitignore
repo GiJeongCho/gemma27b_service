@@ -11,6 +11,7 @@ llm_v1/
 
 # Models (safetensors, blobs)
 src/resources/model/models--*/
+test/model/
 models/
 
 # IDE

@@ -1,22 +1,24 @@
-"""Gemma 3 27B 로컬 모델 로드 및 추론 테스트 스크립트."""
+"""Gemma 4 31B 로컬 모델 로드 및 추론 테스트 스크립트."""
 
 import os
 import sys
 import time
 import torch
-from transformers import AutoProcessor, Gemma3ForConditionalGeneration
+from transformers import AutoProcessor, AutoModelForImageTextToText
 
-LOCAL_MODEL_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "..",
-    "src",
-    "resources",
-    "model",
-    "models--google--gemma-3-27b-it",
-    "snapshots",
-    "005ad3404e59d6023443cb575daa05336842228a",
+LOCAL_MODEL_PATH = os.environ.get("GEMMA_MODEL_PATH") or os.path.normpath(
+    os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "model",
+        "models--google--gemma-4-31B-it",
+        "snapshots",
+    )
 )
-LOCAL_MODEL_PATH = os.path.normpath(LOCAL_MODEL_PATH)
+
+if os.path.isdir(LOCAL_MODEL_PATH):
+    snapshots = os.listdir(LOCAL_MODEL_PATH)
+    if snapshots:
+        LOCAL_MODEL_PATH = os.path.join(LOCAL_MODEL_PATH, snapshots[0])
 
 
 def load_model():
@@ -37,7 +39,7 @@ def load_model():
 
     print("모델 로딩 중... (시간이 걸릴 수 있습니다)")
     t0 = time.time()
-    model = Gemma3ForConditionalGeneration.from_pretrained(
+    model = AutoModelForImageTextToText.from_pretrained(
         LOCAL_MODEL_PATH,
         device_map="auto",
         torch_dtype=torch.bfloat16,
@@ -92,5 +94,5 @@ if __name__ == "__main__":
 
     response = generate(model, processor, test_prompt)
     print("-" * 50)
-    print(f"[Gemma 3 응답]\n{response}")
+    print(f"[Gemma 4 응답]\n{response}")
     print("-" * 50)
