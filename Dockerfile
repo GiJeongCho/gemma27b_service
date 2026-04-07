@@ -5,8 +5,7 @@ WORKDIR /app
 COPY pyproject.toml README.md ./
 COPY src/ ./src/
 
-RUN pip install --no-cache-dir git+https://github.com/huggingface/transformers.git && \
-    pip install --no-cache-dir .
+RUN pip install --no-cache-dir .
 
 ENV PYTHONPATH=/app
 
